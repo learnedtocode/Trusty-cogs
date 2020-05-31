@@ -4,6 +4,7 @@ import asyncio
 import json
 import os
 from datetime import datetime
+from datetime import timezone
 from redbot.core import commands
 from redbot.core import Config
 from redbot.core import checks
@@ -116,7 +117,7 @@ class QPosts(getattr(commands, "Cog", object)):
                     for thread in page["threads"]:
                         # print(thread["no"])
                         thread_time = datetime.utcfromtimestamp(thread["last_modified"])
-                        last_checked_time = datetime.fromtimestamp(await self.config.last_checked())
+                        last_checked_time = datetime.utcfromtimestamp(await self.config.last_checked())
                         if thread_time >= last_checked_time:
                             try:
                                 async with self.session.get("{}/{}/res/{}.json".format(self.url, board,thread["no"])) as resp:
@@ -148,7 +149,7 @@ class QPosts(getattr(commands, "Cog", object)):
             await self.config.boards.set(board_posts)
             if await self.config.print():
                 print("checking Q...")
-            cur_time = datetime.utcnow()
+            cur_time = datetime.now(timezone.utc)
             await self.config.last_checked.set(cur_time.timestamp())
             await asyncio.sleep(60)
 
