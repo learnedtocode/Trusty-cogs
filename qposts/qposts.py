@@ -116,11 +116,11 @@ class QPosts(getattr(commands, "Cog", object)):
                     board_posts[board] = []
                 for page in data:
                     for thread in page["threads"]:
-                        print("request /{}/res/{}.json".format(board, thread["no"]))
                         thread_time = datetime.utcfromtimestamp(thread["last_modified"])
                         last_checked_time = datetime.utcfromtimestamp(await self.config.last_checked())
                         if thread_time >= last_checked_time:
                             try:
+                                print("request /{}/res/{}.json".format(board, thread["no"]))
                                 async with self.session.get("{}/{}/res/{}.json".format(self.url, board,thread["no"])) as resp:
                                     posts = await resp.json()
                             except:
