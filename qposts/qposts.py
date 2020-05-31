@@ -151,7 +151,7 @@ class QPosts(getattr(commands, "Cog", object)):
                 print("checking Q...")
             cur_time = datetime.now(timezone.utc)
             await self.config.last_checked.set(cur_time.timestamp())
-            await asyncio.sleep(60)
+            await asyncio.sleep(30)
 
     async def get_quoted_post(self, qpost):
         html = qpost["com"]
