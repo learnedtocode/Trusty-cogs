@@ -105,6 +105,7 @@ class QPosts(getattr(commands, "Cog", object)):
             board_posts = await self.config.boards()
             for board in self.boards:
                 try:
+                    print("request catalog")
                     async with self.session.get("{}/{}/catalog.json".format(self.url, board)) as resp:
                         data = await resp.json()
                 except Exception as e:
@@ -115,7 +116,7 @@ class QPosts(getattr(commands, "Cog", object)):
                     board_posts[board] = []
                 for page in data:
                     for thread in page["threads"]:
-                        # print(thread["no"])
+                        print(f"request /res/{thread["no"]}.json")
                         thread_time = datetime.utcfromtimestamp(thread["last_modified"])
                         last_checked_time = datetime.utcfromtimestamp(await self.config.last_checked())
                         if thread_time >= last_checked_time:
