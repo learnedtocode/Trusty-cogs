@@ -92,12 +92,14 @@ class QPosts(getattr(commands, "Cog", object)):
     async def qrole(self, ctx):
         """Set your role to a team role"""
         guild = ctx.message.guild
-        try:
-            role = [role for role in guild.roles if role.name == "QPOSTS"][0]
-            await ctx.message.author.add_roles(role)
-            await ctx.send("Role applied.")
-        except Exception as e:
-            await ctx.send(f"error applying Q role: {e}")
+        mention = ctx.message.author.mention
+        async with ctx.typing():
+            try:
+                role = [role for role in guild.roles if role.name == "QPOSTS"][0]
+                await ctx.message.author.add_roles(role)
+                await ctx.send(f"{mention}, you are now a member of the QPOSTS role and will get notifications for new Q posts.")
+            except Exception as e:
+                await ctx.send(f"{mention}, error adding you to the QPOSTS role: {e}")
 
     async def get_q_posts(self):
         await self.bot.wait_until_ready()
