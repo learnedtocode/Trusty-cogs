@@ -23,7 +23,7 @@ numbs = {
     "exit": "❌"
 }
 class QPosts(getattr(commands, "Cog", object)):
-    """Gather Qanon updates from 8kun"""
+    """Gather QAnon updates from 8kun"""
 
     def __init__(self, bot):
         self.bot = bot
@@ -248,8 +248,7 @@ class QPosts(getattr(commands, "Cog", object)):
                 print(f"Error sending tweet: {e}")
                 pass
         em.set_footer(text=board)
-        
-        
+
         for channel_id in await self.config.channels():
             try:
                 channel = self.bot.get_channel(id=channel_id)
