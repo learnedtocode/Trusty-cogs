@@ -96,8 +96,8 @@ class QPosts(getattr(commands, "Cog", object)):
             role = [role for role in guild.roles if role.name == "QPOSTS"][0]
             await ctx.message.author.add_roles(role)
             await ctx.send("Role applied.")
-        except:
-            return
+        except Exception as e:
+            ctx.send(f"error applying Q role: {e}")
 
     async def get_q_posts(self):
         await self.bot.wait_until_ready()
@@ -269,7 +269,6 @@ class QPosts(getattr(commands, "Cog", object)):
                     await channel.send("<{}>".format(url), embed=em)
             except Exception as e:
                 print(f"Error posting Qpost in {channel_id}: {e}")
-                
 
 
     async def q_menu(self, ctx, post_list: list, board,
