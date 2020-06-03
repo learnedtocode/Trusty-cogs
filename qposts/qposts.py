@@ -27,10 +27,18 @@ class QPosts(getattr(commands, "Cog", object)):
 
     def __init__(self, bot):
         self.bot = bot
-        default_data = {"twitter":{"access_secret" : "",
-        "access_token" : "",
-        "consumer_key" : "",
-        "consumer_secret" : ""}, "boards":{}, "channels":[], "last_checked":0, "print":True}
+        default_data = {
+            "twitter": {
+                "access_secret" : "",
+                "access_token" : "",
+                "consumer_key" : "",
+                "consumer_secret" : "",
+            },
+            "boards": {},
+            "channels": [],
+            "last_checked": 0,
+            "print": True,
+        }
         self.config = Config.get_conf(self, 112444567876)
         self.config.register_global(**default_data)
         self.session = aiohttp.ClientSession(loop=self.bot.loop)
@@ -74,7 +82,7 @@ class QPosts(getattr(commands, "Cog", object)):
             async with self.session.get("{}/{}/catalog.json".format(self.url, board)) as resp:
                 data = await resp.json()
             Q_posts = []
-            
+
             for page in data:
                 for thread in page["threads"]:
                     if await self.config.print():
@@ -179,12 +187,12 @@ class QPosts(getattr(commands, "Cog", object)):
                 if post["no"] == post_id:
                     reference_post.append(post)
         return reference_post
-            
+
     # @commands.command(pass_context=True)
     async def postq(self, qpost, board):
         name = qpost["name"] if "name" in qpost else "Anonymous"
         url = "{}/{}/res/{}.html#{}".format(self.url, board, qpost["resto"], qpost["no"])
-        
+
         html = qpost["com"]
         soup = BeautifulSoup(html, "html.parser")
         ref_text = ""
@@ -266,7 +274,7 @@ class QPosts(getattr(commands, "Cog", object)):
                 continue
             guild = channel.guild
             if not channel.permissions_for(guild.me).send_messages:
-                    continue
+                continue
             if not channel.permissions_for(guild.me).embed_links:
                 await channel.send(text[:1900])
             try:
@@ -396,7 +404,7 @@ class QPosts(getattr(commands, "Cog", object)):
         try:
             file_id = post["tim"]
             file_ext = post["ext"]
-        
+
             file_path =  cog_data_path(self) /"files"
             file_path.mkdir(exist_ok=True, parents=True)
             url = "https://media.8kun.top/file_store/{}{}".format(file_id, file_ext)
