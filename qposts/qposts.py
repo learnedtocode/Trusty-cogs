@@ -90,7 +90,14 @@ class QPosts(getattr(commands, "Cog", object)):
 
     @commands.command(pass_context=True, name="qrole")
     async def qrole(self, ctx):
-        """Set your role to a team role"""
+        """
+        Add yourself to the QPOSTS role so you will get notifications for new Q
+        posts.
+
+        For this to work, a role called QPOSTS must exist on your server, and
+        the bot must be assigned to a role that can Manage Roles and that is
+        higher up in the roles list (more permissions) than the QPOSTS role.
+        """
         guild = ctx.message.guild
         mention = ctx.message.author.mention
         async with ctx.typing():
