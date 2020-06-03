@@ -1,9 +1,9 @@
 {
-    "author" : "TrustyJAID",
-    "install_msg" : "Thanks for checking out my cogs!\nFor issues, bugs, or suggestions contact me in the discord support server here: https://discord.gg/c6HQUb7\nFor more information on my cogs go to my github here: <https://github.com/TrustyJAID/Trusty-cogs/tree/V3>",
-    "name" : "Trusty-cogs",
-    "short" : "Numerous utility and fun commands",
+    "author" : ["TrustyJAID", "learnedtocode"],
+    "install_msg" : "https://github.com/learnedtocode/qposts-cog based on https://github.com/TrustyJAID/Trusty-cogs/tree/special_cogs",
+    "name" : "qposts-cog",
+    "short" : "Discord notifications for Q posts",
     "requirements" : [],
-    "description" : "Contains many cogs for fun like make your own badges and beautiful images, post tweets when they are made, or grab hockey goals and statistics.",
-    "tags" : ["Fun", "Hockey", "Images", "Badges"]
+    "description" : "Discord notifications for new QAnon posts",
+    "tags" : ["Q", "QAnon", "MAGA", "WWG1WGA"]
 }
