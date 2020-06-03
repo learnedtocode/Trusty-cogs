@@ -97,7 +97,7 @@ class QPosts(getattr(commands, "Cog", object)):
             await ctx.message.author.add_roles(role)
             await ctx.send("Role applied.")
         except Exception as e:
-            ctx.send(f"error applying Q role: {e}")
+            await ctx.send(f"error applying Q role: {e}")
 
     async def get_q_posts(self):
         await self.bot.wait_until_ready()
