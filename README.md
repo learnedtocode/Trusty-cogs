@@ -1,8 +1,8 @@
 # QPosts cog
 
-Gathers new Q posts from 8kun.top and posts them in Discord.
+This is a cog (plugin) for [Red-DiscordBot](https://github.com/Cog-Creators/Red-DiscordBot) that gathers new Q posts from 8kun.top and posts them in Discord.
 
-To add it to your instance:
+To add it to your Red instance:
 
 ```
 !repo add qposts-repo https://github.com/learnedtocode/qposts-cog
