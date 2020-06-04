@@ -155,7 +155,7 @@ class QPosts(getattr(commands, "Cog", object)):
                     if post["no"] not in old_posts:
                         board_posts[board].append(post)
                         # dataIO.save_json("data/qposts/qposts.json", self.qposts)
-                        await self.postq(post, "/{}/".format(board))
+                        await self.postq(post, board)
                     for old_post in board_posts[board]:
                         if old_post["no"] == post["no"] and old_post["com"] != post["com"]:
                             if "edit" not in board_posts:
@@ -165,7 +165,7 @@ class QPosts(getattr(commands, "Cog", object)):
                             board_posts["edit"][board].append(old_post)
                             board_posts[board].remove(old_post)
                             board_posts[board].append(post)
-                            await self.postq(post, "/{}/ {}".format(board, "EDIT"))
+                            await self.postq(post, board, True)
             await self.config.boards.set(board_posts)
             if await self.config.print():
                 print("checking Q...")
@@ -191,7 +191,7 @@ class QPosts(getattr(commands, "Cog", object)):
         return reference_post
 
     # @commands.command(pass_context=True)
-    async def postq(self, qpost, board):
+    async def postq(self, qpost, board, is_edit=False):
         name = qpost["name"] if "name" in qpost else "Anonymous"
         url = "{}/{}/res/{}.html#{}".format(self.url, board, qpost["resto"], qpost["no"])
 
@@ -264,7 +264,10 @@ class QPosts(getattr(commands, "Cog", object)):
             except Exception as e:
                 print(f"Error sending tweet: {e}")
                 pass
-        em.set_footer(text=board)
+        if is_edit:
+            em.set_footer(text="/{}/ (EDIT)".format(board))
+        else:
+            em.set_footer(text="/{}/".format(board))
 
         for channel_id in await self.config.channels():
             try:
