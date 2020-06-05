@@ -124,8 +124,9 @@ class QPosts(getattr(commands, "Cog", object)):
             board_posts = await self.config.boards()
             for board in self.boards:
                 try:
-                    print("request /{}/catalog.json".format(board))
-                    async with self.session.get("{}/{}/catalog.json".format(self.url, board)) as resp:
+                    catalog_url = "{}/{}/catalog.json?v=2".format(self.url, board)
+                    print("request " + catalog_url)
+                    async with self.session.get(catalog_url) as resp:
                         data = await resp.json()
                 except Exception as e:
                     print(f"error grabbing board catalog {board}: {e}")
