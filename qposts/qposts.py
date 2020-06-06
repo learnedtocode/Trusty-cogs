@@ -116,6 +116,7 @@ class QPosts(getattr(commands, "Cog", object)):
                     board_posts[board] = []
                 for thread in self.utils.parse_catalog(catalog_html):
                     last_checked_time = datetime.utcfromtimestamp(await self.config.last_checked())
+                    last_checked_time = last_checked_time.replace(tzinfo=timezone.utc)
                     if thread["last_modified"] >= last_checked_time:
                         try:
                             posts = await self.utils.request(
