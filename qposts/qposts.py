@@ -148,6 +148,8 @@ class QPosts(getattr(commands, "Cog", object)):
                             board_posts[board].append(post)
                             await self.postq(post, board, True)
             await self.config.boards.set(board_posts)
+            if await self.config.print():
+                self.utils.log("check complete")
             cur_time = datetime.now(timezone.utc)
             await self.config.last_checked.set(cur_time.timestamp())
             await asyncio.sleep(30)

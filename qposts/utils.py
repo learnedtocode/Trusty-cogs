@@ -18,10 +18,6 @@ class TestCog():
     async def __aexit__(self, *args):
         await self.session.close()
 
-def log(msg, *args):
-    time = datetime.now(timezone.utc)
-    print("{}: {}".format(time.strftime('%Y-%m-%d %H:%M:%S'), msg.format(*args)))
-
 def round_time(dt=None, round_to=1):
     # https://stackoverflow.com/a/10854034
     if dt == None:
@@ -34,9 +30,13 @@ class Utils():
     def __init__(self, cog):
         self.cog = cog
 
+    def log(self, msg, *args):
+        time = datetime.now(timezone.utc)
+        print("{}: {}".format(time.strftime('%Y-%m-%d %H:%M:%S'), msg.format(*args)))
+
     async def request(self, url, json=False):
         if await self.cog.config.print():
-            log("request {}", url)
+            self.log("request {}", url)
         # This is wrong but I can't get it to work when reusing the cog's session
         # [CRITICAL] red.main: Caught unhandled exception in task: Unclosed client session
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:
