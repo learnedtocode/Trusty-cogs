@@ -18,3 +18,7 @@ To update the cog if changes are made here:
 ```
 
 More info about other commands is in the command help.
+
+## Like this?
+
+Support my work on QAnon-related code and projects by sending BTC to this address: `1LwyJDETKLG5xD7Ug4VSCTb2K4XA88qu7B`
