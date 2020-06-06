@@ -75,27 +75,6 @@ class QPosts(getattr(commands, "Cog", object)):
         await self.config.last_checked.set(0)
         await ctx.send("Done.")
 
-    @commands.command()
-    async def dlq(self, ctx):
-        board_posts = await self.config.boards()
-        for board in self.boards:
-            async with self.session.get("{}/{}/catalog.json".format(self.url, board)) as resp:
-                data = await resp.json()
-            Q_posts = []
-
-            for page in data:
-                for thread in page["threads"]:
-                    if await self.config.print():
-                        print(thread["no"])
-                    async with self.session.get("{}/{}/res/{}.json".format(self.url, board,thread["no"])) as resp:
-                        posts = await resp.json()
-                    for post in posts["posts"]:
-                        if "trip" in post:
-                            if post["trip"] in self.trips:
-                                Q_posts.append(post)
-            board_posts[board] = Q_posts
-        await self.config.boards.set(board_posts)
-
     @commands.command(pass_context=True, name="qrole")
     async def qrole(self, ctx):
         """
