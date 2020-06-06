@@ -11,7 +11,7 @@ from redbot.core import checks
 from redbot.core.data_manager import cog_data_path
 from pathlib import Path
 from bs4 import BeautifulSoup
-from utils import Utils
+from .utils import Utils
 try:
     import tweepy as tw
     twInstalled = True
