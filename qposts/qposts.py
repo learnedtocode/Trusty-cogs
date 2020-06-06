@@ -118,12 +118,11 @@ class QPosts(getattr(commands, "Cog", object)):
                     last_checked_time = datetime.utcfromtimestamp(await self.config.last_checked())
                     last_checked_time = last_checked_time.replace(tzinfo=timezone.utc)
                     if thread["last_modified"] >= last_checked_time:
+                        thread_url = self.url + thread["href"].replace(".html", ".json")
                         try:
-                            posts = await self.utils.request(
-                                "{}/{}/res/{}.json".format(self.url, board),
-                                json=True)
+                            posts = await self.utils.request(thread_url, json=True)
                         except Exception as e:
-                            print("error getting thread {}: {}".format(thread["href"], e))
+                            print("error getting thread {}: {}".format(thread_url, e))
                             continue
                         for post in posts["posts"]:
                             if "trip" in post:
