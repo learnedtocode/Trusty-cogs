@@ -120,7 +120,7 @@ class QPosts(getattr(commands, "Cog", object)):
                     if thread["last_modified"] >= last_checked_time:
                         try:
                             posts = await self.utils.request(
-                                "{}/{}/res/{}.json".format(self.url, board,thread["no"]),
+                                "{}/{}/res/{}.json".format(self.url, board),
                                 json=True)
                         except Exception as e:
                             print("error getting thread {}: {}".format(thread["href"], e))
