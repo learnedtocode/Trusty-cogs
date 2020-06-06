@@ -115,9 +115,8 @@ class QPosts(getattr(commands, "Cog", object)):
                 if board not in board_posts:
                     board_posts[board] = []
                 for thread in self.utils.parse_catalog(catalog_html):
-                    thread_time = datetime.utcfromtimestamp(thread["last_modified"])
                     last_checked_time = datetime.utcfromtimestamp(await self.config.last_checked())
-                    if thread_time >= last_checked_time:
+                    if thread["last_modified"] >= last_checked_time:
                         try:
                             posts = await self.utils.request(
                                 "{}/{}/res/{}.json".format(self.url, board,thread["no"]),
