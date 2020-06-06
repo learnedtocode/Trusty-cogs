@@ -3,6 +3,7 @@ import aiohttp
 import asyncio
 import json
 import os
+import traceback
 from datetime import datetime
 from datetime import timezone
 from redbot.core import commands
@@ -38,6 +39,7 @@ class QPosts(getattr(commands, "Cog", object)):
             "boards": {},
             "channels": [],
             "last_checked": 0,
+            "last_succeeded": 0,
             "print": True,
         }
         self.config = Config.get_conf(self, 112444567876)
@@ -76,6 +78,7 @@ class QPosts(getattr(commands, "Cog", object)):
     @commands.command()
     async def reset_qpost(self, ctx):
         await self.config.last_checked.set(0)
+        await self.config.last_succeeded.set(0)
         await ctx.send("Done.")
 
     @commands.command(pass_context=True, name="qrole")
@@ -103,26 +106,36 @@ class QPosts(getattr(commands, "Cog", object)):
     async def get_q_posts(self):
         await self.bot.wait_until_ready()
         while self is self.bot.get_cog("QPosts"):
+            errors = False
+            last_succeeded_time = await self.config.last_succeeded()
+            if not last_succeeded_time: # migration
+                last_succeeded_time = await self.config.last_checked()
+            last_succeeded_time = datetime.utcfromtimestamp(last_succeeded_time)
+            last_succeeded_time = last_succeeded_time.replace(tzinfo=timezone.utc)
             board_posts = await self.config.boards()
             for board in self.boards:
                 try:
                     catalog_html = await self.utils.request(
                         "{}/{}/catalog.html".format(self.url, board))
-                except Exception as e:
-                    print(f"error getting catalog for /{board}/: {e}")
+                except:
+                    self.utils.log("error getting catalog for /{}/: {}",
+                            board,
+                            traceback.format_exc(limit=1))
+                    errors = True
                     continue
                 Q_posts = []
                 if board not in board_posts:
                     board_posts[board] = []
                 for thread in self.utils.parse_catalog(catalog_html):
-                    last_checked_time = datetime.utcfromtimestamp(await self.config.last_checked())
-                    last_checked_time = last_checked_time.replace(tzinfo=timezone.utc)
-                    if thread["last_modified"] >= last_checked_time:
+                    if thread["last_modified"] >= last_succeeded_time:
                         thread_url = self.url + thread["href"].replace(".html", ".json")
                         try:
                             posts = await self.utils.request(thread_url, json=True)
-                        except Exception as e:
-                            print("error getting thread {}: {}".format(thread_url, e))
+                        except:
+                            self.utils.log("error getting thread {}: {}",
+                                    thread_url,
+                                    traceback.format_exc(limit=1))
+                            errors = True
                             continue
                         for post in posts["posts"]:
                             if "trip" in post:
@@ -147,9 +160,14 @@ class QPosts(getattr(commands, "Cog", object)):
                             board_posts[board].append(post)
                             await self.postq(post, board, True)
             await self.config.boards.set(board_posts)
-            if await self.config.print():
-                self.utils.log("check complete")
             cur_time = datetime.now(timezone.utc)
+            if errors:
+                if await self.config.print():
+                    self.utils.log("check failed")
+            else:
+                await self.config.last_succeeded.set(cur_time.timestamp())
+                if await self.config.print():
+                    self.utils.log("check complete")
             await self.config.last_checked.set(cur_time.timestamp())
             await asyncio.sleep(30)
 
