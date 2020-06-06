@@ -40,7 +40,7 @@ class Utils():
         # This is wrong but I can't get it to work when reusing the cog's session
         # [CRITICAL] red.main: Caught unhandled exception in task: Unclosed client session
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:
-            async with self.session.get(url) as r:
+            async with session.get(url) as r:
                 if r.status != 200:
                     raise RuntimeError('HTTP {}'.format(r.status))
                 if json:
