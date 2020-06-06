@@ -107,8 +107,7 @@ class QPosts(getattr(commands, "Cog", object)):
             for board in self.boards:
                 try:
                     catalog_html = await self.utils.request(
-                        "{}/{}/catalog.html",
-                        self.url, board)
+                        "{}/{}/catalog.html".format(self.url, board))
                 except Exception as e:
                     print(f"error getting catalog for /{board}/: {e}")
                     continue
