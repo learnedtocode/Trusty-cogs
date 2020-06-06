@@ -11,6 +11,7 @@ from redbot.core import checks
 from redbot.core.data_manager import cog_data_path
 from pathlib import Path
 from bs4 import BeautifulSoup
+from utils import Utils
 try:
     import tweepy as tw
     twInstalled = True
@@ -41,12 +42,14 @@ class QPosts(getattr(commands, "Cog", object)):
         }
         self.config = Config.get_conf(self, 112444567876)
         self.config.register_global(**default_data)
-        self.session = aiohttp.ClientSession(loop=self.bot.loop)
+        self.session = aiohttp.ClientSession(
+                loop=self.bot.loop,
+                timeout=aiohttp.ClientTimeout(total=30))
+        self.utils = Utils(self)
         self.url = "https://8kun.top"
         self.boards = ["qresearch", "projectdcomms"]
         self.trips = ["!!Hs1Jq13jV6"]
         self.loop = bot.loop.create_task(self.get_q_posts())
-
 
     async def authenticate(self):
         """Authenticate with Twitter's API"""
@@ -103,32 +106,31 @@ class QPosts(getattr(commands, "Cog", object)):
             board_posts = await self.config.boards()
             for board in self.boards:
                 try:
-                    catalog_url = "{}/{}/catalog.json?v=2".format(self.url, board)
-                    print("request " + catalog_url)
-                    async with self.session.get(catalog_url) as resp:
-                        data = await resp.json()
+                    catalog_html = await self.utils.request(
+                        "{}/{}/catalog.html",
+                        self.url, board)
                 except Exception as e:
-                    print(f"error grabbing board catalog {board}: {e}")
+                    print(f"error getting catalog for /{board}/: {e}")
                     continue
                 Q_posts = []
                 if board not in board_posts:
                     board_posts[board] = []
-                for page in data:
-                    for thread in page["threads"]:
-                        thread_time = datetime.utcfromtimestamp(thread["last_modified"])
-                        last_checked_time = datetime.utcfromtimestamp(await self.config.last_checked())
-                        if thread_time >= last_checked_time:
-                            try:
-                                print("request /{}/res/{}.json".format(board, thread["no"]))
-                                async with self.session.get("{}/{}/res/{}.json".format(self.url, board,thread["no"])) as resp:
-                                    posts = await resp.json()
-                            except:
-                                print("error grabbing thread {} in board {}".format(thread["no"], board))
-                                continue
-                            for post in posts["posts"]:
-                                if "trip" in post:
-                                    if post["trip"] in self.trips:
-                                        Q_posts.append(post)
+                for thread in self.utils.parse_catalog(catalog_html):
+                    thread_time = datetime.utcfromtimestamp(thread["last_modified"])
+                    last_checked_time = datetime.utcfromtimestamp(await self.config.last_checked())
+                    if thread_time >= last_checked_time:
+                        try:
+                            posts = await self.utils.request(
+                                "{}/{}/res/{}.json".format(self.url, board,thread["no"]),
+                                json=True)
+                        except Exception as e:
+                            print("error getting thread {}: {}".format(thread["href"], e))
+                            continue
+                        for post in posts["posts"]:
+                            if "trip" in post:
+                                if post["trip"] in self.trips:
+                                    Q_posts.append(post)
+
                 old_posts = [post_no["no"] for post_no in board_posts[board]]
 
                 for post in Q_posts:
@@ -147,8 +149,6 @@ class QPosts(getattr(commands, "Cog", object)):
                             board_posts[board].append(post)
                             await self.postq(post, board, True)
             await self.config.boards.set(board_posts)
-            if await self.config.print():
-                print("checking Q...")
             cur_time = datetime.now(timezone.utc)
             await self.config.last_checked.set(cur_time.timestamp())
             await asyncio.sleep(30)
