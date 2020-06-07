@@ -164,7 +164,6 @@ class QPosts(getattr(commands, "Cog", object)):
                 await self.config.boards.set(board_posts)
             except:
                 self.utils.log("unhandled error: {}",
-                        thread_url,
                         traceback.format_exc(limit=1))
                 errors = True
                 continue
