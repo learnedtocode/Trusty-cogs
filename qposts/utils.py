@@ -53,6 +53,8 @@ class Utils():
                 except TimeoutError:
                     if i == 1:
                         raise
+                    elif log:
+                        self.log("retry {}", url)
 
     def parse_catalog(self, html, now=None):
         if now == None:
