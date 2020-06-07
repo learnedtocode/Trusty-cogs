@@ -3,7 +3,7 @@
     "install_msg" : "https://github.com/learnedtocode/qposts-cog based on https://github.com/TrustyJAID/Trusty-cogs/tree/special_cogs",
     "name" : "qposts-cog",
     "short" : "Discord notifications for Q posts",
-    "requirements" : [],
+    "requirements" : ["bs4", "html5lib"],
     "description" : "Discord notifications for new QAnon posts",
     "tags" : ["Q", "QAnon", "MAGA", "WWG1WGA"]
 }
