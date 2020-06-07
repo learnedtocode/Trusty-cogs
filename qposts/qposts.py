@@ -127,7 +127,6 @@ class QPosts(getattr(commands, "Cog", object)):
                     Q_posts = []
                     if board not in board_posts:
                         board_posts[board] = []
-                    raise ValueError('test')
                     for thread in self.utils.parse_catalog(catalog_html):
                         if thread["last_modified"] >= last_succeeded_time:
                             thread_url = self.url + thread["href"].replace(".html", ".json")
@@ -166,7 +165,6 @@ class QPosts(getattr(commands, "Cog", object)):
                 self.utils.log("unhandled error: {}",
                         traceback.format_exc(limit=1))
                 errors = True
-                continue
 
             cur_time = datetime.now(timezone.utc)
             if errors:
