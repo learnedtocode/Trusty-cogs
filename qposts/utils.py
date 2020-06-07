@@ -1,4 +1,5 @@
 import aiohttp
+import asyncio
 from datetime import datetime, timedelta, timezone
 from bs4 import BeautifulSoup
 
@@ -50,7 +51,7 @@ class Utils():
                             return await r.json()
                         else:
                             return await r.text()
-                except TimeoutError:
+                except asyncio.exceptions.TimeoutError:
                     if i == 1:
                         raise
                     elif log:
