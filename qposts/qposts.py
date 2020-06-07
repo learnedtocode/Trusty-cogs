@@ -384,10 +384,10 @@ class QPosts(getattr(commands, "Cog", object)):
                 return await message.delete()
 
     @commands.command(pass_context=True, aliases=["postq"])
-    async def qpost(self, ctx, board="patriotsfight"):
+    async def qpost(self, ctx, board="qresearch"):
         """Display latest qpost from specified board"""
         if board not in await self.config.boards():
-            await ctx.send("{} is not an available board!")
+            await ctx.send("{} is not an available board!".format(board))
             return
         qposts = await self.config.boards()
         qposts = list(reversed(qposts[board]))
