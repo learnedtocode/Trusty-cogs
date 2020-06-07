@@ -107,59 +107,68 @@ class QPosts(getattr(commands, "Cog", object)):
         await self.bot.wait_until_ready()
         while self is self.bot.get_cog("QPosts"):
             errors = False
-            last_succeeded_time = await self.config.last_succeeded()
-            if not last_succeeded_time: # migration
-                last_succeeded_time = await self.config.last_checked()
-            last_succeeded_time = datetime.utcfromtimestamp(last_succeeded_time)
-            last_succeeded_time = last_succeeded_time.replace(tzinfo=timezone.utc)
-            board_posts = await self.config.boards()
-            for board in self.boards:
-                try:
-                    catalog_html = await self.utils.request(
-                        "{}/{}/catalog.html".format(self.url, board))
-                except:
-                    self.utils.log("error getting catalog for /{}/: {}",
-                            board,
-                            traceback.format_exc(limit=1))
-                    errors = True
-                    continue
-                Q_posts = []
-                if board not in board_posts:
-                    board_posts[board] = []
-                for thread in self.utils.parse_catalog(catalog_html):
-                    if thread["last_modified"] >= last_succeeded_time:
-                        thread_url = self.url + thread["href"].replace(".html", ".json")
-                        try:
-                            posts = await self.utils.request(thread_url, json=True)
-                        except:
-                            self.utils.log("error getting thread {}: {}",
-                                    thread_url,
-                                    traceback.format_exc(limit=1))
-                            errors = True
-                            continue
-                        for post in posts["posts"]:
-                            if "trip" in post:
-                                if post["trip"] in self.trips:
-                                    Q_posts.append(post)
+            try:
+                last_succeeded_time = await self.config.last_succeeded()
+                if not last_succeeded_time: # migration
+                    last_succeeded_time = await self.config.last_checked()
+                last_succeeded_time = datetime.utcfromtimestamp(last_succeeded_time)
+                last_succeeded_time = last_succeeded_time.replace(tzinfo=timezone.utc)
+                board_posts = await self.config.boards()
+                for board in self.boards:
+                    try:
+                        catalog_html = await self.utils.request(
+                            "{}/{}/catalog.html".format(self.url, board))
+                    except:
+                        self.utils.log("error getting catalog for /{}/: {}",
+                                board,
+                                traceback.format_exc(limit=1))
+                        errors = True
+                        continue
+                    Q_posts = []
+                    if board not in board_posts:
+                        board_posts[board] = []
+                    raise ValueError('test')
+                    for thread in self.utils.parse_catalog(catalog_html):
+                        if thread["last_modified"] >= last_succeeded_time:
+                            thread_url = self.url + thread["href"].replace(".html", ".json")
+                            try:
+                                posts = await self.utils.request(thread_url, json=True)
+                            except:
+                                self.utils.log("error getting thread {}: {}",
+                                        thread_url,
+                                        traceback.format_exc(limit=1))
+                                errors = True
+                                continue
+                            for post in posts["posts"]:
+                                if "trip" in post:
+                                    if post["trip"] in self.trips:
+                                        Q_posts.append(post)
 
-                old_posts = [post_no["no"] for post_no in board_posts[board]]
+                    old_posts = [post_no["no"] for post_no in board_posts[board]]
 
-                for post in Q_posts:
-                    if post["no"] not in old_posts:
-                        board_posts[board].append(post)
-                        # dataIO.save_json("data/qposts/qposts.json", self.qposts)
-                        await self.postq(post, board)
-                    for old_post in board_posts[board]:
-                        if old_post["no"] == post["no"] and old_post["com"] != post["com"]:
-                            if "edit" not in board_posts:
-                                board_posts["edit"] = {}
-                            if board not in board_posts["edit"]:
-                                board_posts["edit"][board] = []
-                            board_posts["edit"][board].append(old_post)
-                            board_posts[board].remove(old_post)
+                    for post in Q_posts:
+                        if post["no"] not in old_posts:
                             board_posts[board].append(post)
-                            await self.postq(post, board, True)
-            await self.config.boards.set(board_posts)
+                            # dataIO.save_json("data/qposts/qposts.json", self.qposts)
+                            await self.postq(post, board)
+                        for old_post in board_posts[board]:
+                            if old_post["no"] == post["no"] and old_post["com"] != post["com"]:
+                                if "edit" not in board_posts:
+                                    board_posts["edit"] = {}
+                                if board not in board_posts["edit"]:
+                                    board_posts["edit"][board] = []
+                                board_posts["edit"][board].append(old_post)
+                                board_posts[board].remove(old_post)
+                                board_posts[board].append(post)
+                                await self.postq(post, board, True)
+                await self.config.boards.set(board_posts)
+            except:
+                self.utils.log("unhandled error: {}",
+                        thread_url,
+                        traceback.format_exc(limit=1))
+                errors = True
+                continue
+
             cur_time = datetime.now(timezone.utc)
             if errors:
                 if await self.config.print():

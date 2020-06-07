@@ -58,10 +58,8 @@ class Utils():
             last_modified = last_modified.replace(tzinfo=timezone.utc)
             # Set to current year
             last_modified = last_modified.replace(year=now.year)
-            # Set to minute + 1 and second + 15 (to give some margin of error)
-            last_modified = last_modified.replace(
-                    minute=last_modified.minute + 1,
-                    second=last_modified.second + 15)
+            # Add 75 seconds (for end of minute and to give some margin of error)
+            last_modified = last_modified + timedelta(seconds=75)
             # Account for threads updated last year
             # No way to tell if the update was actually more than 1 year ago?
             if last_modified > now + timedelta(days=1):
