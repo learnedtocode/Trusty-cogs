@@ -158,6 +158,7 @@ class QPosts(getattr(commands, "Cog", object)):
 
                     old_posts = [post_no["no"] for post_no in board_posts[board]]
 
+                    Q_posts.reverse()
                     for post in Q_posts:
                         if post["no"] not in old_posts:
                             board_posts[board].append(post)
