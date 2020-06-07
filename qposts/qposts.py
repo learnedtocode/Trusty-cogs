@@ -46,7 +46,7 @@ class QPosts(getattr(commands, "Cog", object)):
         self.config.register_global(**default_data)
         self.session = aiohttp.ClientSession(
                 loop=self.bot.loop,
-                timeout=aiohttp.ClientTimeout(total=30))
+                timeout=aiohttp.ClientTimeout(total=15))
         self.utils = Utils(self)
         self.url = "https://8kun.top"
         self.boards = ["qresearch", "projectdcomms"]

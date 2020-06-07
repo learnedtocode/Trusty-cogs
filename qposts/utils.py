@@ -35,18 +35,24 @@ class Utils():
         print("{}: {}".format(time.strftime('%Y-%m-%d %H:%M:%S'), msg.format(*args)))
 
     async def request(self, url, json=False):
-        if await self.cog.config.print():
+        log = await self.cog.config.print()
+        if log:
             self.log("request {}", url)
         # This is wrong but I can't get it to work when reusing the cog's session
         # [CRITICAL] red.main: Caught unhandled exception in task: Unclosed client session
         async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:
-            async with session.get(url) as r:
-                if r.status != 200:
-                    raise RuntimeError('HTTP {}'.format(r.status))
-                if json:
-                    return await r.json()
-                else:
-                    return await r.text()
+            for i in range(3, 0, -1):
+                try:
+                    async with session.get(url) as r:
+                        if r.status != 200:
+                            raise RuntimeError('HTTP {}'.format(r.status))
+                        if json:
+                            return await r.json()
+                        else:
+                            return await r.text()
+                except TimeoutError:
+                    if i == 1:
+                        raise
 
     def parse_catalog(self, html, now=None):
         if now == None:
