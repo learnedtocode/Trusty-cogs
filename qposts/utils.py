@@ -51,7 +51,7 @@ class Utils():
     def parse_catalog(self, html, now=None):
         if now == None:
             now = datetime.now(timezone.utc)
-        soup = BeautifulSoup(html, "html.parser")
+        soup = BeautifulSoup(html, "html5lib")
         for a in soup.select("#Grid .thread > a"):
             last_modified = datetime.strptime(a.img["title"], '%b %d %H:%M')
             # Set to UTC
