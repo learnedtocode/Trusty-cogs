@@ -148,7 +148,6 @@ class QPosts(getattr(commands, "Cog", object)):
                     for post in Q_posts:
                         if post["no"] not in old_posts:
                             board_posts[board].append(post)
-                            # dataIO.save_json("data/qposts/qposts.json", self.qposts)
                             await self.postq(post, board)
                         for old_post in board_posts[board]:
                             if old_post["no"] == post["no"] and old_post["com"] != post["com"]:
@@ -198,6 +197,15 @@ class QPosts(getattr(commands, "Cog", object)):
     async def postq(self, qpost, board, is_edit=False):
         name = qpost["name"] if "name" in qpost else "Anonymous"
         url = "{}/{}/res/{}.html#{}".format(self.url, board, qpost["resto"], qpost["no"])
+        timestamp = datetime.utcfromtimestamp(qpost["time"])
+
+        if await self.config.print():
+            status = 'New'
+            if is_edit: status = 'Edited'
+            self.utils.log('{} Q: {}, {}',
+                    status,
+                    timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                    url)
 
         html = qpost["com"]
         soup = BeautifulSoup(html, "html.parser")
@@ -232,10 +240,9 @@ class QPosts(getattr(commands, "Cog", object)):
             img_url = "https://media.8kun.top/file_store/{}{}".format(file_id, file_ext)
             await self.save_q_files(qpost)
 
-        # print("here")
         em = discord.Embed(colour=discord.Colour.red())
         em.set_author(name=name + qpost["trip"], url=url)
-        em.timestamp = datetime.utcfromtimestamp(qpost["time"])
+        em.timestamp = timestamp
         if text != "":
             if text.count("_") > 2 or text.count("~") > 2 or text.count("*") > 2:
                 em.description = "```\n{}```".format(text[:1990])
