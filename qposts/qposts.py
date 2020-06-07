@@ -53,11 +53,18 @@ class QPosts(getattr(commands, "Cog", object)):
         self.trips = ["!!Hs1Jq13jV6"]
         self.loop = bot.loop.create_task(self.get_q_posts())
 
-    async def authenticate(self):
+    async def twitter_authenticate(self):
         """Authenticate with Twitter's API"""
         try:
-            auth = tw.OAuthHandler(await self.config.twitter.consumer_key(), await self.config.twitter.consumer_secret())
-            auth.set_access_token(await self.config.twitter.access_token(), await self.config.twitter.access_secret())
+            consumer_key = await self.config.twitter.consumer_key()
+            consumer_secret = await self.config.twitter.consumer_secret()
+            access_token = await self.config.twitter.access_token()
+            access_secret = await self.config.twitter.access_secret()
+            if not consumer_key or not consumer_secret \
+                    or not access_token or not access_secret:
+                return None
+            auth = tw.OAuthHandler(consumer_key, consumer_secret)
+            auth.set_access_token(access_token, access_secret)
             return tw.API(auth)
         except:
             return
@@ -67,11 +74,17 @@ class QPosts(getattr(commands, "Cog", object)):
         if not twInstalled:
             return
         try:
-            api = await self.authenticate()
+            api = await self.twitter_authenticate()
+            if not api:
+                return
             if file is None:
                 api.update_status(message)
+                if await self.config.print():
+                    print("sent tweet")
             else:
                 api.update_with_media(file, status=message)
+                if await self.config.print():
+                    print("sent tweet with image")
         except:
             return
 
@@ -181,9 +194,9 @@ class QPosts(getattr(commands, "Cog", object)):
         soup = BeautifulSoup(html, "html.parser")
         reference_post = []
         for a in soup.find_all("a", href=True):
-            # print(a)
             try:
-                url, post_id = a["href"].split("#")[0].replace("html", "json"), int(a["href"].split("#")[1])
+                url = a["href"].split("#")[0].replace("html", "json")
+                post_id = int(a["href"].split("#")[1])
             except:
                 continue
             async with self.session.get(self.url + url) as resp:
@@ -199,7 +212,8 @@ class QPosts(getattr(commands, "Cog", object)):
         url = "{}/{}/res/{}.html#{}".format(self.url, board, qpost["resto"], qpost["no"])
         timestamp = datetime.utcfromtimestamp(qpost["time"])
 
-        if await self.config.print():
+        log = await self.config.print()
+        if log:
             status = 'New'
             if is_edit: status = 'Edited'
             self.utils.log('{} Q: {}, {}',
@@ -259,8 +273,6 @@ class QPosts(getattr(commands, "Cog", object)):
         if img_url != "":
             em.set_image(url=img_url)
             try:
-                if await self.config.print():
-                    print("sending tweet with image")
                 tw_msg = "{}\n#QAnon\n{}".format(url, text)
                 await self.send_tweet(tw_msg[:280], "data/qposts/files/{}{}".format(file_id, file_ext))
             except Exception as e:
@@ -268,8 +280,6 @@ class QPosts(getattr(commands, "Cog", object)):
                 pass
         else:
             try:
-                if await self.config.print():
-                    print("sending tweet")
                 tw_msg = "{}\n#QAnon\n{}".format(url, text)
                 await self.send_tweet(tw_msg[:280])
             except Exception as e:
@@ -299,6 +309,10 @@ class QPosts(getattr(commands, "Cog", object)):
                     await channel.send("{} <{}>".format(role, url), embed=em)
                 else:
                     await channel.send("<{}>".format(url), embed=em)
+                if log:
+                    self.utils.log('Posted Q: {}, {}',
+                            timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                            url)
             except Exception as e:
                 print(f"Error posting Qpost in {channel_id}: {e}")
 
