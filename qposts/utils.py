@@ -11,7 +11,7 @@ class TestCog():
     def __init__(self):
         self.config = TestConfig()
         self.session = aiohttp.ClientSession(
-                timeout=aiohttp.ClientTimeout(total=30))
+                timeout=aiohttp.ClientTimeout(total=15))
 
     async def __aenter__(self):
         return self
@@ -41,7 +41,7 @@ class Utils():
             self.log("request {}", url)
         # This is wrong but I can't get it to work when reusing the cog's session
         # [CRITICAL] red.main: Caught unhandled exception in task: Unclosed client session
-        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=30)) as session:
+        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as session:
             for i in range(3, 0, -1):
                 try:
                     async with session.get(url) as r:
