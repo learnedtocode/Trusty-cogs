@@ -12,7 +12,7 @@ from redbot.core import checks
 from redbot.core.data_manager import cog_data_path
 from pathlib import Path
 from bs4 import BeautifulSoup
-from .utils import Utils
+from .utils import Utils, HTTPError
 try:
     import tweepy as tw
     twInstalled = True
@@ -144,7 +144,16 @@ class QPosts(getattr(commands, "Cog", object)):
                         if thread["last_modified"] >= last_succeeded_time:
                             thread_url = self.url + thread["href"].replace(".html", ".json")
                             try:
-                                posts = await self.utils.request(thread_url, json=True)
+                                try:
+                                    posts = await self.utils.request(thread_url, json=True)
+                                except HTTPError as e:
+                                    if e.code == 404:
+                                        self.utils.log("warning getting thread {}: {}",
+                                                thread_url,
+                                                traceback.format_exc(limit=1))
+                                        continue
+                                    else:
+                                        raise
                             except:
                                 self.utils.log("error getting thread {}: {}",
                                         thread_url,

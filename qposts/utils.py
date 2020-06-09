@@ -3,6 +3,13 @@ import asyncio
 from datetime import datetime, timedelta, timezone
 from bs4 import BeautifulSoup
 
+class HTTPError(RuntimeError):
+    def __init__(self, code):
+        self.code = code
+
+    def __str__(self):
+        return "HTTP {}".format(self.code)
+
 class TestConfig():
     async def print(self):
         return True
@@ -46,7 +53,7 @@ class Utils():
                 try:
                     async with session.get(url) as r:
                         if r.status != 200:
-                            raise RuntimeError('HTTP {}'.format(r.status))
+                            raise HTTPError(r.status)
                         if json:
                             return await r.json()
                         else:
