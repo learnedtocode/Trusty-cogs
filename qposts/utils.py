@@ -1,5 +1,5 @@
-import aiohttp
 import asyncio
+from aiohttp import ClientSession, ClientTimeout
 from datetime import datetime, timedelta, timezone
 from bs4 import BeautifulSoup
 
@@ -17,8 +17,7 @@ class TestConfig():
 class TestCog():
     def __init__(self):
         self.config = TestConfig()
-        self.session = aiohttp.ClientSession(
-                timeout=aiohttp.ClientTimeout(total=15))
+        self.session = ClientSession(timeout=ClientTimeout(total=15))
 
     async def __aenter__(self):
         return self
@@ -42,14 +41,14 @@ class Utils():
         time = datetime.now(timezone.utc)
         print("{}: {}".format(time.strftime('%Y-%m-%d %H:%M:%S'), msg.format(*args)))
 
-    async def request(self, url, json=False):
+    async def request(self, url, json=False, timeout=15, max_tries=3):
         log = await self.cog.config.print()
         if log:
             self.log("request {}", url)
         # This is wrong but I can't get it to work when reusing the cog's session
         # [CRITICAL] red.main: Caught unhandled exception in task: Unclosed client session
-        async with aiohttp.ClientSession(timeout=aiohttp.ClientTimeout(total=15)) as session:
-            for i in range(3, 0, -1):
+        async with ClientSession(timeout=ClientTimeout(total=timeout)) as session:
+            for i in range(max_tries, 0, -1):
                 try:
                     async with session.get(url) as r:
                         if r.status != 200:
