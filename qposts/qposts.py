@@ -129,8 +129,8 @@ class QPosts(getattr(commands, "Cog", object)):
                 board_posts = await self.config.boards()
                 for board in self.boards:
                     try:
-                        cb = int(round_time(round_to=30).timestamp())
-                        catalog_url = "{}/{}/catalog.html?_=".format(
+                        cb = int(round_time(round_to=15).timestamp())
+                        catalog_url = "{}/{}/catalog.html?_={}".format(
                                 self.url, board, cb)
                         catalog_html = await self.utils.request(catalog_url)
                     except:
