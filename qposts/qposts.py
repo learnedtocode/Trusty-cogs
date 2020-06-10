@@ -12,7 +12,7 @@ from redbot.core import checks
 from redbot.core.data_manager import cog_data_path
 from pathlib import Path
 from bs4 import BeautifulSoup
-from .utils import Utils, HTTPError
+from .utils import Utils, HTTPError, round_time
 try:
     import tweepy as tw
     twInstalled = True
@@ -129,8 +129,10 @@ class QPosts(getattr(commands, "Cog", object)):
                 board_posts = await self.config.boards()
                 for board in self.boards:
                     try:
-                        catalog_html = await self.utils.request(
-                            "{}/{}/catalog.html".format(self.url, board))
+                        cb = int(round_time(round_to=30).timestamp())
+                        catalog_url = "{}/{}/catalog.html?_=".format(
+                                self.url, board, cb)
+                        catalog_html = await self.utils.request(catalog_url)
                     except:
                         self.utils.log("error getting catalog for /{}/: {}",
                                 board,

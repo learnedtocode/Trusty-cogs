@@ -31,7 +31,7 @@ def round_time(dt=None, round_to=1):
     if dt == None:
         dt = datetime.now(timezone.utc)
     seconds = (dt.replace(tzinfo=None) - dt.min).seconds
-    rounding = (seconds + roundTo / 2) // roundTo * roundTo
+    rounding = (seconds + round_to / 2) // round_to * round_to
     return dt + timedelta(0, rounding - seconds, -dt.microsecond)
 
 class Utils():
