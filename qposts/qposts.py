@@ -132,7 +132,8 @@ class QPosts(getattr(commands, "Cog", object)):
                         cb = int(round_time(round_to=15).timestamp())
                         catalog_url = "{}/{}/catalog.html?_={}".format(
                                 self.url, board, cb)
-                        catalog_html = await self.utils.request(catalog_url)
+                        catalog_html = await self.utils.request(catalog_url,
+                                timeout=30, max_tries=6)
                     except:
                         self.utils.log("error getting catalog for /{}/: {}",
                                 board,
