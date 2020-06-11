@@ -117,26 +117,24 @@ class QPosts(getattr(commands, "Cog", object)):
                 await ctx.send(f"{mention}, error adding you to the QPOSTS role: {e}")
 
     async def get_catalog_threads(self, board):
-        try:
-            catalog_url = "{}/{}/catalog.html".format(self.url, board)
-            catalog_html = await self.utils.request(catalog_url)
-            catalog_threads = [t for t in self.utils.parse_catalog(catalog_html)]
-            catalog_updated = max(t["last_modified"] for t in catalog_threads)
-            expected_updated = datetime.now(timezone.utc) - timedelta(minutes=6)
-            if catalog_updated < expected_updated:
-                raise RuntimeError("Catalog for /{}/ may be stuck! {} < {}".format(
-                        board,
-                        catalog_updated.strftime('%Y-%m-%d %H:%M:%S'),
-                        expected_updated.strftime('%Y-%m-%d %H:%M:%S')))
-            return catalog_threads
-        except:
-            self.utils.log("warning getting uncached catalog.html for /{}/: {}",
+        catalog_url = "{}/{}/catalog.html".format(self.url, board)
+        catalog_html = await self.utils.request(catalog_url)
+        catalog_threads = [t for t in self.utils.parse_catalog(catalog_html)]
+        catalog_updated = max(t["last_modified"] for t in catalog_threads)
+        expected_updated = datetime.now(timezone.utc) - timedelta(minutes=6)
+
+        if catalog_updated < expected_updated:
+            self.utils.log("Catalog for /{}/ may be stuck! {} < {}".format(
+                    board,
+                    catalog_updated.strftime('%Y-%m-%d %H:%M:%S'),
+                    expected_updated.strftime('%Y-%m-%d %H:%M:%S')))
             cb = int(round_time(round_to=15).timestamp())
             catalog_url = "{}/{}/catalog.html?_={}".format(self.url, board, cb)
             catalog_html = await self.utils.request(catalog_url,
                     timeout=30, max_tries=6)
             catalog_threads = [t for t in self.utils.parse_catalog(catalog_html)]
-            return catalog_threads
+
+        return catalog_threads
 
     async def get_q_posts(self):
         await self.bot.wait_until_ready()
