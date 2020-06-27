@@ -332,14 +332,18 @@ class QPosts(getattr(commands, "Cog", object)):
             if not channel.permissions_for(guild.me).embed_links:
                 await channel.send(text[:1900])
             try:
+                post_timestamp = timestamp.strftime('%H:%M:%S')
+                now_timestamp = datetime.now(timezone.utc).strftime('%H:%M:%S')
+                timestamps_str = "Q/{} bot/{}".format(
+                        post_timestamp,
+                        now_timestamp)
                 role = "".join(role.mention for role in guild.roles if role.name == "QPOSTS")
                 if role != "":
-                    await channel.send("{} <{}>".format(role, url), embed=em)
-                else:
-                    await channel.send("<{}>".format(url), embed=em)
+                    role += " "
+                await channel.send("{}<{}> {}".format(role, url, timestamps_str), embed=em)
                 if log:
                     self.utils.log('Posted Q: {}, {}',
-                            timestamp.strftime('%Y-%m-%d %H:%M:%S'),
+                            post_timestamp,
                             url)
             except Exception as e:
                 print(f"Error posting Qpost in {channel_id}: {e}")
