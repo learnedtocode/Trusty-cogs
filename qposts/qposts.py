@@ -151,6 +151,7 @@ class QPosts(getattr(commands, "Cog", object)):
         await self.bot.wait_until_ready()
         while self is self.bot.get_cog("QPosts"):
             errors = False
+            this_check_time = datetime.now(timezone.utc)
             try:
                 last_succeeded_time = await self.config.last_succeeded()
                 if not last_succeeded_time: # migration
@@ -216,15 +217,14 @@ class QPosts(getattr(commands, "Cog", object)):
                         traceback.format_exc(limit=1))
                 errors = True
 
-            cur_time = datetime.now(timezone.utc)
             if errors:
                 if await self.config.print():
                     self.utils.log("check failed")
             else:
-                await self.config.last_succeeded.set(cur_time.timestamp())
+                await self.config.last_succeeded.set(this_check_time.timestamp())
                 if await self.config.print():
                     self.utils.log("check complete")
-            await self.config.last_checked.set(cur_time.timestamp())
+            await self.config.last_checked.set(this_check_time.timestamp())
             await asyncio.sleep(30)
 
     async def get_quoted_post(self, qpost):
