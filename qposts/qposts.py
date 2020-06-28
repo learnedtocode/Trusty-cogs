@@ -133,7 +133,7 @@ class QPosts(getattr(commands, "Cog", object)):
             catalog_threads = [t for t in self.utils.parse_catalog(catalog_html)]
         return catalog_threads
 
-    async def get_thread_posts(thread):
+    async def get_thread_posts(self, thread):
         thread_url = self.url + thread["href"].replace(".html", ".json")
         thread_posts = await self.utils.request(thread_url, json=True)
         thread_posts = thread_posts["posts"]
@@ -175,14 +175,14 @@ class QPosts(getattr(commands, "Cog", object)):
                             except HTTPError as e:
                                 if e.code == 404:
                                     self.utils.log("warning getting thread {}: {}",
-                                            thread_url,
+                                            thread["href"],
                                             traceback.format_exc(limit=1))
                                     continue
                                 else:
                                     raise
                             except:
                                 self.utils.log("error getting thread {}: {}",
-                                        thread_url,
+                                        thread["href"],
                                         traceback.format_exc(limit=1))
                                 errors = True
                                 continue
