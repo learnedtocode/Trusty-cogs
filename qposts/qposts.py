@@ -121,7 +121,6 @@ class QPosts(getattr(commands, "Cog", object)):
         catalog_threads = [t for t in self.utils.parse_catalog(catalog_html)]
         catalog_updated = max(t["last_modified"] for t in catalog_threads)
         expected_updated = datetime.now(timezone.utc) - timedelta(minutes=6)
-
         if catalog_updated < expected_updated:
             self.utils.log("Catalog for /{}/ may be stuck! {} < {}".format(
                     board,
@@ -132,8 +131,19 @@ class QPosts(getattr(commands, "Cog", object)):
             catalog_html = await self.utils.request(catalog_url,
                     timeout=30, max_tries=6)
             catalog_threads = [t for t in self.utils.parse_catalog(catalog_html)]
-
         return catalog_threads
+
+    async def get_thread_posts(thread):
+        thread_url = self.url + thread["href"].replace(".html", ".json")
+        thread_posts = await self.utils.request(thread_url, json=True)
+        thread_posts = thread_posts["posts"]
+        thread_updated = datetime.fromtimestamp(
+                max(p["last_modified"] for p in thread_posts))
+        expected_updated = thread["last_modified"]
+        self.utils.log("updated: t={} c={}".format(
+            thread_updated.strftime('%Y-%m-%d %H:%M:%S'),
+            expected_updated.strftime('%Y-%m-%d %H:%M:%S')))
+        return thread_posts
 
     async def get_q_posts(self):
         await self.bot.wait_until_ready()
@@ -160,25 +170,23 @@ class QPosts(getattr(commands, "Cog", object)):
                         board_posts[board] = []
                     for thread in catalog_threads:
                         if thread["last_modified"] >= last_succeeded_time:
-                            thread_url = self.url + thread["href"].replace(".html", ".json")
                             try:
-                                try:
-                                    posts = await self.utils.request(thread_url, json=True)
-                                except HTTPError as e:
-                                    if e.code == 404:
-                                        self.utils.log("warning getting thread {}: {}",
-                                                thread_url,
-                                                traceback.format_exc(limit=1))
-                                        continue
-                                    else:
-                                        raise
+                                posts = await self.get_thread_posts(thread)
+                            except HTTPError as e:
+                                if e.code == 404:
+                                    self.utils.log("warning getting thread {}: {}",
+                                            thread_url,
+                                            traceback.format_exc(limit=1))
+                                    continue
+                                else:
+                                    raise
                             except:
                                 self.utils.log("error getting thread {}: {}",
                                         thread_url,
                                         traceback.format_exc(limit=1))
                                 errors = True
                                 continue
-                            for post in posts["posts"]:
+                            for post in posts:
                                 if "trip" in post:
                                     if post["trip"] in self.trips:
                                         Q_posts.append(post)
