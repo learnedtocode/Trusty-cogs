@@ -140,9 +140,10 @@ class QPosts(getattr(commands, "Cog", object)):
         thread_updated = datetime.fromtimestamp(
                 max(p["last_modified"] for p in thread_posts))
         expected_updated = thread["last_modified"]
-        self.utils.log("updated: t={} c={}".format(
+        self.utils.log("updated: t={} c={} d={}".format(
             thread_updated.strftime('%Y-%m-%d %H:%M:%S'),
-            expected_updated.strftime('%Y-%m-%d %H:%M:%S')))
+            expected_updated.strftime('%Y-%m-%d %H:%M:%S'),
+            round((expected_updated - thread_updated).total_seconds())))
         return thread_posts
 
     async def get_q_posts(self):
