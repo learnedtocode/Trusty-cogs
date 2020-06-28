@@ -142,7 +142,7 @@ class QPosts(getattr(commands, "Cog", object)):
         thread_updated = thread_updated.replace(tzinfo=timezone.utc)
         expected_updated = thread["last_modified"]
         # Max difference should be 75, see utils.parse_catalog()
-        if expected_updated - thread_updated >= 90:
+        if expected_updated - thread_updated >= timedelta(seconds=90):
             self.utils.log("Thread {} looks stuck! c:{} - t:{} = {}s".format(
                 thread_url,
                 expected_updated.strftime('%Y-%m-%d %H:%M:%S'),
