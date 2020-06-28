@@ -137,8 +137,9 @@ class QPosts(getattr(commands, "Cog", object)):
         thread_url = self.url + thread["href"].replace(".html", ".json")
         thread_posts = await self.utils.request(thread_url, json=True)
         thread_posts = thread_posts["posts"]
-        thread_updated = datetime.fromtimestamp(
+        thread_updated = datetime.utcfromtimestamp(
                 max(p["last_modified"] for p in thread_posts))
+        thread_updated = thread_updated.replace(tzinfo=timezone.utc)
         expected_updated = thread["last_modified"]
         self.utils.log("updated: t={} c={} d={}".format(
             thread_updated.strftime('%Y-%m-%d %H:%M:%S'),
