@@ -141,10 +141,25 @@ class QPosts(getattr(commands, "Cog", object)):
                 max(p["last_modified"] for p in thread_posts))
         thread_updated = thread_updated.replace(tzinfo=timezone.utc)
         expected_updated = thread["last_modified"]
-        self.utils.log("updated: t={} c={} d={}".format(
-            thread_updated.strftime('%Y-%m-%d %H:%M:%S'),
-            expected_updated.strftime('%Y-%m-%d %H:%M:%S'),
-            round((expected_updated - thread_updated).total_seconds())))
+        # Max difference should be 75, see utils.parse_catalog()
+        if expected_updated - thread_updated >= 90:
+            self.utils.log("Thread {} looks stuck! c:{} - t:{} = {}s".format(
+                thread_url,
+                expected_updated.strftime('%Y-%m-%d %H:%M:%S'),
+                thread_updated.strftime('%Y-%m-%d %H:%M:%S'),
+                round((expected_updated - thread_updated).total_seconds())))
+            cb = int(round_time(round_to=15).timestamp())
+            thread_url += '?_=' + cb
+            thread_posts = await self.utils.request(thread_url, json=True)
+            thread_posts = thread_posts["posts"]
+            thread_updated = datetime.utcfromtimestamp(
+                    max(p["last_modified"] for p in thread_posts))
+            thread_updated = thread_updated.replace(tzinfo=timezone.utc)
+            self.utils.log("c:{} - t2:{} = {}s".format(
+                thread_url,
+                expected_updated.strftime('%Y-%m-%d %H:%M:%S'),
+                thread_updated.strftime('%Y-%m-%d %H:%M:%S'),
+                round((expected_updated - thread_updated).total_seconds())))
         return thread_posts
 
     async def get_q_posts(self):

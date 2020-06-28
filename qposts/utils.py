@@ -80,4 +80,3 @@ class Utils():
             if last_modified > now + timedelta(days=1):
                 last_modified = last_modified.replace(year=last_modified.year - 1)
             yield {"href": a["href"], "last_modified": last_modified}
-
