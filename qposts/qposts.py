@@ -149,7 +149,7 @@ class QPosts(getattr(commands, "Cog", object)):
                 thread_updated.strftime('%Y-%m-%d %H:%M:%S'),
                 round((expected_updated - thread_updated).total_seconds())))
             cb = int(round_time(round_to=15).timestamp())
-            thread_url += '?_=' + cb
+            thread_url += "?_={}".format(cb)
             thread_posts = await self.utils.request(thread_url, json=True)
             thread_posts = thread_posts["posts"]
             thread_updated = datetime.utcfromtimestamp(
