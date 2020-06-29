@@ -156,7 +156,6 @@ class QPosts(getattr(commands, "Cog", object)):
                     max(p["last_modified"] for p in thread_posts))
             thread_updated = thread_updated.replace(tzinfo=timezone.utc)
             self.utils.log("c:{} - t2:{} = {}s".format(
-                thread_url,
                 expected_updated.strftime('%Y-%m-%d %H:%M:%S'),
                 thread_updated.strftime('%Y-%m-%d %H:%M:%S'),
                 round((expected_updated - thread_updated).total_seconds())))
